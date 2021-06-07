@@ -6,14 +6,14 @@
 
 Request::Request(const std::string& msg) // проверять ли пустые/непустые строки в запросе?
 {
-	bool is_startline(true);
+	bool 				is_startline(true);
 	std::istringstream	_iss(msg);
-	std::string	whole_msg = _iss.str();
-	std::string line;
+	std::string			whole_msg = _iss.str();
+	std::string 		line;
 	//std::cout << basic_string << std::endl;
 	while (whole_msg.length() != 0)
 	{
-		size_t lbl = whole_msg.find(10);
+		size_t lbl = whole_msg.find(10); //отсекаю стартовую строку
 		if (lbl != std::string::npos)
 		{
 			line = whole_msg.substr(0, lbl - 1);
@@ -21,9 +21,15 @@ Request::Request(const std::string& msg) // проверять ли пустые
 				break;
 			if (is_startline)
 			{
-				_method = line.substr(0, line.find(" "));
+				size_t 		tmplbl = line.find(' ');
+				_method = line.substr(0, tmplbl);
+				_parsed_data["method"] = _method;
 				_startline.push_back(_method);
-				_startline.push_back(line.substr(line.find(" ") + 1, line.length() - 1));
+				line = line.substr(tmplbl + 1);
+				_source = line.substr(0, line.find(' '));
+				_parsed_data["source"] = _source;
+				_startline.push_back(_source);
+				_startline.push_back(line.substr(line.find(' ') + 1, line.npos));
 				is_startline = false;
 			}
 			else
@@ -37,8 +43,9 @@ Request::Request(const std::string& msg) // проверять ли пустые
 		}
 	}
 
-	//std::cout << "METHOD: " << _startline[0] << std::endl;
-	//std::cout << "START ARG: " << _startline[1] << std::endl;
+	std::cout << "METHOD: " << _startline[0] << std::endl;
+	std::cout << "SOURCE: " << _startline[1] << std::endl;
+	std::cout << "START ARG: " << _startline[2] << std::endl;
 	std::map<std::string, std::string>::iterator it = _parsed_data.begin();
 	while (it != _parsed_data.end())
 	{

@@ -2,6 +2,8 @@
 // Created by Marceline Vuente on 6/1/21.
 //
 
+//
+
 #include "Response.hpp"
 
 Response::Response()// make this!!!
@@ -10,7 +12,7 @@ Response::Response()// make this!!!
 	this->_rsp_msg = std::string("");
 	this->_server = std::string("KmichikoMvuenteServer"); //имя нашего сервера
 	this->_date = std::string(""); //наверное, не надо. делать апдейт даты при гаждом формировании ответа
-	this->_content_type = std::string("text/plain"); //зависит от вида нашей страницы по умолчанию
+	this->_content_type = std::string("text/html"); //зависит от вида нашей страницы по умолчанию
 	this->_content_length = 0;
 	this->_last_modified = std::string(""); //наверное, не надо. делать апдейт даты при гаждом формировании ответа
 }
@@ -44,16 +46,16 @@ void 									Response::setRSP_START_LINE(std::string rsp_code)
 void 									Response::setRSP_MSG() // make this!
 {
 	if (this->_server != "")
-		this->_rsp_msg += "server: " + this->_server + "\n";
+		this->_rsp_msg += "server: " + this->_server + "\r\n";
 	if (this->_date != "")
-		this->_rsp_msg += "date: " + this->_date + "\n";
+		this->_rsp_msg += "date: " + this->_date + "\r\n";
 	if (this->_content_type != "")
-		this->_rsp_msg += "content-type: " + this->_content_type + "\n";
+		this->_rsp_msg += "content-type: " + this->_content_type + "\r\n";
 	if (this->_content_length != 0)
-		this->_rsp_msg += "content-length: " + std::to_string(this->_content_length) + "\n";
+		this->_rsp_msg += "content-length: " + std::to_string(this->_content_length) + "\r\n";
 	if (this->_last_modified != "")
-		this->_rsp_msg += "last_modified: " + this->_last_modified + "\n";
-	this->_rsp_msg += "\n\n";
+		this->_rsp_msg += "last_modified: " + this->_last_modified + "\r\n";
+	this->_rsp_msg += "\r\n";
 }
 
 void 									Response::setContent_Length()

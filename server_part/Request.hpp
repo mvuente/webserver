@@ -23,6 +23,7 @@ class Request {
 		std::map<std::string, std::string>	_parsed_data;
 		std::vector<std::string>			_startline;
 		std::string 						_method;
+		std::string 						_source;
 
 };
 
