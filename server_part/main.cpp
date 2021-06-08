@@ -64,12 +64,12 @@ int 	main() {
 		//Server		srv = Server(); //написать, из чего его делать
 		//std::cout << "Before servermachine constructor" << std::endl;
 		ServerMachine		srvm = ServerMachine(rqst, rspns); // добавить srv
-		srvm.respHeaderCreater();
+		srvm.ResponseCrtr();
 		std::string 		responce = srvm.getResponce();
 		//std::cout << responce << std::endl;
 		char* hello = new char [responce.length()+1];
 		std::strcpy (hello, responce.c_str());
-		responce = srvm.getBody();
+		responce = srvm.getRspObj().getRSP_BODY();
 		char* body = new char [responce.length()+1];
 
 		std::strcpy (body, responce.c_str());

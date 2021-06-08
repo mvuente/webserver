@@ -10,7 +10,7 @@ Request::Request(const std::string& msg) // проверять ли пустые
 	std::istringstream	_iss(msg);
 	std::string			whole_msg = _iss.str();
 	std::string 		line;
-	//std::cout << basic_string << std::endl;
+
 	while (whole_msg.length() != 0)
 	{
 		size_t lbl = whole_msg.find(10); //отсекаю стартовую строку
@@ -56,12 +56,28 @@ Request::Request(const std::string& msg) // проверять ли пустые
 };
 Request::~Request() {};
 
-std::vector<std::string>			Request::getStart()
+bool 								Request::methodValidator()
 {
-	return this->_startline;
+	if (this->_method == "GET" || this->_method == "POST" || this->_method == "DELETE")
+		return true;
+	return false;
+}
+
+std::string 						Request::getMethod()
+{
+	return this->_method;
 }
 
 std::map<std::string, std::string>	Request::getData()
 {
 	return this->_parsed_data;
 }
+
+//are hecking
+
+std::vector<std::string>			Request::getStart()
+{
+	return this->_startline;
+}
+
+

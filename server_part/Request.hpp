@@ -12,18 +12,26 @@
 #include <iostream>
 
 class Request {
-	public:
-		Request(const std::string& msg);
-		~Request();
-		std::vector<std::string>	getStart();
-		std::map<std::string, std::string>	getData();
-	private:
-		Request();
-		//std::istringstream					_iss;
-		std::map<std::string, std::string>	_parsed_data;
-		std::vector<std::string>			_startline;
-		std::string 						_method;
-		std::string 						_source;
+public:
+	Request(const std::string& msg);
+	~Request();
+
+	bool 								methodValidator();
+
+	std::string 						getMethod();
+	std::map<std::string, std::string>	getData();
+
+	//are checking
+
+	std::vector<std::string>	getStart();
+
+private:
+	Request();
+	//std::istringstream					_iss;
+	std::map<std::string, std::string>	_parsed_data;
+	std::vector<std::string>			_startline;
+	std::string 						_method;
+	std::string 						_source;
 
 };
 

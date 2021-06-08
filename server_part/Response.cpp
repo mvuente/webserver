@@ -63,7 +63,7 @@ void 									Response::setContent_Length()
 	this->_content_length = this->_rsp_body.size();
 }
 
-void 									Response::setRSP_BODY(std::string body)
+void 									Response::setRSP_BODY(std::string body) //разве это здесь?
 {
 	this->_rsp_body = body;
 	this->setContent_Length();

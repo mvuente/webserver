@@ -6,99 +6,78 @@
 
 ServerMachine::ServerMachine(Request& rqst, Response& rspns) : _rqst(rqst), _rspns(rspns) // add , Server& srvr and , _srvr(srvr)
 {
-	this->_body = "Hello, scoundrels!";
-	this->_filepath = "/Users/mvuente/Documents/web";
+	this->_rspns.setRSP_BODY("Hello, scoundrels!");
+	this->_filepath = "/Users/mvuente/Documents/web"; // take it from config
 }
 
-std::string 	ServerMachine::CodeOfRespns()
+void		ServerMachine::methodGet()
 {
-	std::string tmpval = this->_rqst.getData()["source"];
+	std::string 		tmpval = this->_rqst.getData()["source"];
 	if (tmpval == "/") // открыть запрошенный файл
-		this->setCodeRespns("200 OK");
+		this->_rspns.setRSP_START_LINE("200 OK");
 	else
 	{
-		std::string filename = _filepath + tmpval;
-		//std::ifstream ifs(filename, std::ifstream::binary);
-		std::cout << "What's this?" << std::endl;
-		std::ifstream ifs(filename, std::ifstream::in);
+		std::string 	filename = _filepath + tmpval;
+		std::ifstream 	ifs(filename, std::ifstream::in); //открываю искомый файл
 		if (!ifs)
 		{
-			this->setCodeRespns("404 FILE IS NOT FOUND");
-			this->_body = "ERROR 404. Resource you've requested is unavailable";
+			this->_rspns.setRSP_START_LINE("404 FILE IS NOT FOUND");
+			this->_rspns.setRSP_BODY("ERROR 404. Resource you've requested is unavailable");
 		}
-
 		else
 		{
-			bool flag(true);
+			bool 		flag(true);
+			std::string tmpbody = this->_rspns.getRSP_BODY();
 			while (ifs)
 			{
 				std::string	tmpstr;
 				if (flag)
 				{
-
-					this->_body.clear();
-
+					tmpbody.clear();
 				}
-
-				if (!this->_body.empty())
-					this->_body += "\n";
-
+				if (!tmpbody.empty())
+					tmpbody += "\n";
 				std::getline(ifs, tmpstr);
-
-				this->_body += tmpstr;
+				tmpbody += tmpstr;
 				flag = false;
 			}
-
-//				// get length of file:
-//				ifs.seekg (0, ifs.end);
-//				int length = ifs.tellg();
-//				ifs.seekg (0, ifs.beg);
-
-				//char * buffer = new char [length];
-
-
-				// read data as a block:
-				//ifs.read (buffer,length);
 			ifs.close();
-//			this->_bytestream = buffer;
-//			this->_length = length;
-			this->setCodeRespns("200 OK");
+			this->_rspns.setRSP_BODY(tmpbody);
+			this->_rspns.setRSP_START_LINE("200 OK");
 		}
-		//std::cout << filename << std::endl;
 	}
-	return this->getCodeRespns();
 }
 
-std::string		ServerMachine::getBody()
+
+void	ServerMachine::ResponseCrtr()
 {
-	return this->_body;
+	if (!_rqst.methodValidator())
+		this->_rspns.setRSP_START_LINE("400 METHOD IS UNKNOWN");  //CHECK ERROR CODES
+	else
+	{
+		if (this->_rqst.getMethod() == "GET")
+			this->methodGet();
+//		else if (this->_rqst.getMethod() == "POST")
+//			return this->methodPost();
+//		else
+//			return this->methodDelete();
+	}
 }
+
+
 
 int 		ServerMachine::getLength()
 {
 	return this->_length;
 }
 
-std::string ServerMachine::getCodeRespns()
+Response&	ServerMachine::getRspObj()
 {
-	return this->_coderspns;
+	return this->_rspns;
 }
 
-void 		ServerMachine::setCodeRespns(std::string str)
+std::string 	ServerMachine::getResponce()
 {
-	this->_coderspns = str;
-}
-
-void 		ServerMachine::respHeaderCreater()
-{
-	this->_rspns.setRSP_START_LINE(this->CodeOfRespns());
-	//СЮДА ПОСТАВИТЬ ВЫЗОВ СОСТАВТИТЕЛЯ BODY
-	this->_rspns.setRSP_BODY(this->_body);
 	this->_rspns.setRSP_MSG();
-
-}
-
-std::string ServerMachine::getResponce()
-{
 	return (this->_rspns.getRSP_START_LINE() + this->_rspns.getRSP_MSG());// + this->_rspns.getRSP_BODY());
 }

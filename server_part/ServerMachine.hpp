@@ -12,13 +12,18 @@ class ServerMachine {
 public:
 	ServerMachine(Request& rqst, Response& rspns); // add , Server& srvr
 
+	std::string getResponce(); // ПОКА складывает стартовую строку и остальные хелеры. Тело делаю отдельно. Потом совмещу
+	Response&	getRspObj(); //временный метод
+
+	void ResponseCrtr();
+	void	methodGet();
+
+	// under construction
 	void 		respHeaderCreater();
-	std::string getResponce();
-	std::string		getBody();
+
+
 	int 		getLength();
-	std::string	CodeOfRespns();
-	std::string getCodeRespns();
-	void 		setCodeRespns(std::string str);
+
 private:
 	Request		_rqst;
 	Response	_rspns;
