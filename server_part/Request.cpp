@@ -1,83 +1,87 @@
 //
-// Created by Marceline Vuente on 6/3/21.
+// Created by Marceline Vuente on 6/11/21.
 //
 
 #include "Request.hpp"
 
-Request::Request(const std::string& msg) // проверять ли пустые/непустые строки в запросе?
+Request::Request(std::string& msg)
 {
-	bool 				is_startline(true);
-	std::istringstream	_iss(msg);
-	std::string			whole_msg = _iss.str();
+	std::istringstream	iss(msg);
 	std::string 		line;
-
-	while (whole_msg.length() != 0)
+	bool 				flag_start(1); //флаг первой строки запроса
+	while (getline(iss, line, '\n')) // дроблю весь запрос на отдельные строки
 	{
-		size_t lbl = whole_msg.find(10); //отсекаю стартовую строку
-		if (lbl != std::string::npos)
-		{
-			line = whole_msg.substr(0, lbl - 1);
-			if (line.length() == 0)
-				break;
-			if (is_startline)
-			{
-				size_t 		tmplbl = line.find(' ');
-				_method = line.substr(0, tmplbl);
-				_parsed_data["method"] = _method;
-				_startline.push_back(_method);
-				line = line.substr(tmplbl + 1);
-				_source = line.substr(0, line.find(' '));
-				_parsed_data["source"] = _source;
-				_startline.push_back(_source);
-				_startline.push_back(line.substr(line.find(' ') + 1, line.npos));
-				is_startline = false;
-			}
-			else
-				_parsed_data[line.substr(0, line.find(" "))] = line.substr(line.find(" ") + 1, line.length() - 1);
-			whole_msg = whole_msg.substr(lbl + 1);
-		}
-		else // NO NEED this, since there is an empty line between headers and body!
-		{
-			line = whole_msg;
-			whole_msg = "";
-		}
+		this->lineParser(line, flag_start);
 	}
+}
 
-	std::cout << "METHOD: " << _startline[0] << std::endl;
-	std::cout << "SOURCE: " << _startline[1] << std::endl;
-	std::cout << "START ARG: " << _startline[2] << std::endl;
-	std::map<std::string, std::string>::iterator it = _parsed_data.begin();
-	while (it != _parsed_data.end())
+Request::~Request() {}
+
+Request::Request() {}
+
+std::string										Request::sourceParser()
+{
+	if (this->_source == "/") // а бывает вообще пусто?????
+		return "text/html";
+	std::string	type = this->_source.substr(this->_source.find('.') + 1, this->_source.find(' '));
+	if (type == "html")
+		return "text/html";
+	else if (type == "css")
+		return "text/css";
+	else if (type == "js")
+		return "text/javascript";
+	else if (type == "jpeg" || type == "jpg")
+		return "image/jpeg";
+	else if (type == "png")
+		return "image/png";
+	else if (type == "bmp")
+		return "image/bmp";
+	else
+		return "application/" + type;
+}
+
+void											Request::lineParser(std::string line, bool& flag_start)
+{
+	std::istringstream 	isl(line);
+	std::string 		word;
+	if (flag_start)
+	{    // СЮДА добавить methodvalidator и exception
+		getline(isl, this->_method, ' ');
+		getline(isl, this->_source, ' ');
+		getline(isl, this->_start_arg, ' ');
+		flag_start = 0;
+		//sourceParser();
+		return ;
+	}
+	std::vector<std::string>	v;
+	getline(isl, word, ' ');
+	//this->_parsed_data[word] = v(0);
+	std::string 				token;
+	while (getline(isl, token, ' '))
 	{
-		//std::cout << "HEADER: " << it->first << "  " << "ARG: " << it->second << std::endl;
-		it++;
+		this->_parsed_data[word].push_back(token); //записываю все токены строки запроса в словарь с ключевым словом - header
 	}
-	std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-};
-Request::~Request() {};
+	return ;
+}
 
-bool 								Request::methodValidator()
+std::map<std::string, std::vector<std::string> >	Request::getParsedData()
+{
+	return this->_parsed_data;
+}
+
+std::string 										Request::getMethod()
+{
+	return this->_method;
+}
+
+std::string 										Request::getSource()
+{
+	return this->_source;
+}
+
+bool 												Request::methodValidator()
 {
 	if (this->_method == "GET" || this->_method == "POST" || this->_method == "DELETE")
 		return true;
 	return false;
 }
-
-std::string 						Request::getMethod()
-{
-	return this->_method;
-}
-
-std::map<std::string, std::string>	Request::getData()
-{
-	return this->_parsed_data;
-}
-
-//are hecking
-
-std::vector<std::string>			Request::getStart()
-{
-	return this->_startline;
-}
-
-

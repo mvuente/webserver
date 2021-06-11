@@ -2,8 +2,8 @@
 // Created by Marceline Vuente on 6/5/21.
 //
 
-#ifndef _WEBSERV_SERVERMACHINE_HPP
-#define _WEBSERV_SERVERMACHINE_HPP
+#ifndef WEBSERV_SERVERMACHINE_HPP
+#define WEBSERV_SERVERMACHINE_HPP
 #include "Request.hpp"
 #include "Response.hpp"
 #include <fstream>
@@ -11,15 +11,16 @@
 class ServerMachine {
 public:
 	ServerMachine(Request& rqst, Response& rspns); // add , Server& srvr
-
-	std::string getResponce(); // ПОКА складывает стартовую строку и остальные хелеры. Тело делаю отдельно. Потом совмещу
+	~ServerMachine();
+	std::string getResponse(); // ПОКА складывает стартовую строку и остальные хелеры. Тело делаю отдельно. Потом совмещу
 	Response&	getRspObj(); //временный метод
 
-	void ResponseCrtr();
-	void	methodGet();
+	void 		ResponseCrtr();
+	void		methodGet();
+	//void	methodPost();
 
 	// under construction
-	void 		respHeaderCreater();
+	//void 		respHeaderCreater();
 
 
 	int 		getLength();

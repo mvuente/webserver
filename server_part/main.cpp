@@ -60,24 +60,25 @@ int 	main() {
 
 		//printf("%s\n", buffer );
 		//std::cout << "Before respomse constructor" << std::endl;
-		Response	rspns = Response();
+		Response	rspns = Response(rqst);
 		//Server		srv = Server(); //написать, из чего его делать
 		//std::cout << "Before servermachine constructor" << std::endl;
 		ServerMachine		srvm = ServerMachine(rqst, rspns); // добавить srv
-		srvm.ResponseCrtr();
-		std::string 		responce = srvm.getResponce();
-		//std::cout << responce << std::endl;
+		std::cout << "AFTER servermachine constructor" << std::endl;
+		srvm.ResponseCrtr(); //done
+		std::string 		responce = srvm.getResponse();
+		std::cout << responce << std::endl;
 		char* hello = new char [responce.length()+1];
 		std::strcpy (hello, responce.c_str());
-		responce = srvm.getRspObj().getRSP_BODY();
-		char* body = new char [responce.length()+1];
-
-		std::strcpy (body, responce.c_str());
+//		responce = srvm.getRspObj().getRSP_BODY();
+//		char* body = new char [responce.length()+1];
+//
+//		std::strcpy (body, responce.c_str());
 
 
 		//char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 		write(new_socket , hello , strlen(hello));
-		write(new_socket , body , strlen(body));
+		//write(new_socket , body , strlen(body));
 		printf("------------------Hello message sent-------------------\n");
 		close(new_socket);
 	}

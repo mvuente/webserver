@@ -1,9 +1,9 @@
 //
-// Created by Marceline Vuente on 6/3/21.
+// Created by Marceline Vuente on 6/11/21.
 //
 
-#ifndef _WEBSERV_REQUEST_HPP
-#define _WEBSERV_REQUEST_HPP
+#ifndef WEBSERV_REQUEST_HPP
+#define WEBSERV_REQUEST_HPP
 
 #include <sstream>
 #include <istream>
@@ -13,25 +13,30 @@
 
 class Request {
 public:
-	Request(const std::string& msg);
+	explicit Request(std::string& msg);
 	~Request();
 
-	bool 								methodValidator();
+	void 												lineParser(std::string line, bool& flag);
+	std::string											sourceParser();
+	std::map<std::string, std::vector<std::string> >	getParsedData();
+	std::string 										getMethod();
+	std::string 										getSource();
+	bool 												methodValidator();
 
-	std::string 						getMethod();
-	std::map<std::string, std::string>	getData();
 
 	//are checking
 
-	std::vector<std::string>	getStart();
+	//std::vector<std::string>	getStart();
 
 private:
 	Request();
 	//std::istringstream					_iss;
-	std::map<std::string, std::string>	_parsed_data;
-	std::vector<std::string>			_startline;
+	std::map<std::string, std::vector<std::string> >	_parsed_data; //хранит все строк запроса в виде пары: заголовок - значение
+	//std::vector<std::string>			_startline; // хранит стартовую строку запроса ?
 	std::string 						_method;
 	std::string 						_source;
+	std::string 						_start_arg;
+	//std::string 						_fileType;
 
 };
 
