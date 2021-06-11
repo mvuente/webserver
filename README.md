@@ -11,3 +11,6 @@ The server must be compatible with the web browser of my choice (Mozilla).
 There will be considered that Nginx is HTTP 1.1 compliant and may be used to compare
 headers and answer behaviors.
 I need at least GET, POST, and DELETE methods.
+
+References:
+https://datatracker.ietf.org/doc/html/rfc7231
