@@ -1,5 +1,6 @@
 #include "parser/Config.hpp"
 #include "StatusCode.hpp"
+#include "Dispatcher.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -8,11 +9,13 @@ int main(int argc, char *argv[])
 		std::cout << "Error: bad arguments. Please, provide path to config or use default." << std::endl;
 		return (1);
 	}
-	Config config;
 	std::string path;
 	path = "config/default.conf";
 	if (argc == 2)
 		path = argv[1];
-	config.parse(path);
+	Dispatcher	disp(path);
+	disp.prep();
+	disp.run();
+
 	return (0);
 }

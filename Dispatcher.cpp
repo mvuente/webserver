@@ -4,18 +4,57 @@
 
 #include "Dispatcher.hpp"
 
-Dispatcher::Dispatcher(int serv_fd, struct sockaddr_in address, int addrlen) : _serv_fd(serv_fd), _address(address), _addrlen(addrlen)
+Dispatcher::Dispatcher(std::string path)
 {
-	//важно! слушающий fd навсегда лежит в массиве fd'шников
-
-	FD_SET(_serv_fd, &_fd_set); //сделать проверку на результат?
-	_maxfd = _serv_fd; // на старте max выставляем на слушателя. Потом регулярно проверять
-	_debag = 0;
+	this->_config.parse(path);
 }
 
 Dispatcher::~Dispatcher() {}
 
-void Dispatcher::run()
+void 	Dispatcher::prep()
+{
+	// take CONFIG class
+	int 							server_fd;
+	long 							valread;
+	struct sockaddr_in				address;
+	int 							addrlen = sizeof(address);
+
+	// Creating socket file descriptor
+	std::list<Server*>::iterator 	it;
+	std::cout << "Servers are " << _config.getServers().size() << std::endl;
+	for (it = _config.getServers().begin(); it != _config.getServers().end(); ++it) // делаем слушающие сокеты на всех портах, указанныъ в конфиге
+	{
+		if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) // сокет для ДАННОГО адреса
+		{
+			perror("In socket");
+			exit(EXIT_FAILURE);
+		}
+		fcntl(server_fd, F_SETFL, O_NONBLOCK); // сделали полученный сокет неблокирующим
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = INADDR_ANY;
+		address.sin_port = htons((*it)->getPort());
+
+		memset(address.sin_zero, '\0', sizeof address.sin_zero);
+		std::cout << "Port is " << (*it)->getPort() << std::endl;
+		std::cout << "Host is " << (*it)->getHost() << std::endl;
+		if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0)
+		{
+			std::cout << "Is problem here? " << std::endl;
+			perror("In bind");
+			exit(EXIT_FAILURE);
+		}
+		if (listen(server_fd, 10) < 0)
+		{
+			perror("In listen");
+			exit(EXIT_FAILURE);
+		}
+		_listeners[server_fd] = *it; //сделано хранилище слушающих сокетов
+		FD_SET(server_fd, &_fd_set); //сделать проверку на результат?
+		_maxfd = std::max(_maxfd, server_fd); // на старте max выставляем на слушателя. Потом регулярно проверять
+	}
+}
+
+void 	Dispatcher::run()
 {
 	std::set<int>	cli_rqst;
 	std::set<int>	cli_rspns;
@@ -92,19 +131,23 @@ void Dispatcher::run()
 			}
 		}
 		// 2.1. Если сработал главгый слушатель, то запустить accept
-		if (FD_ISSET(_serv_fd, &readset))
+		std::map<int, Server*>::iterator mit;
+		for (mit = _listeners.begin(); mit != _listeners.end(); ++mit)
 		{
-			int	new_socket = accept(_serv_fd, (struct sockaddr *)&_address, (socklen_t*)&_addrlen);
-			if (new_socket != -1)
+			if (FD_ISSET(mit->first, &readset))
 			{
-				FD_SET(new_socket, &_fd_set); // сохраняет сокет для следующего цикла select
-				cli_rqst.insert(new_socket); // сокет сохранен для дальнейшего чтения
-				_maxfd = std::max(new_socket, _maxfd);
-				_debag = new_socket;
+				int	new_socket = accept(mit->first, (struct sockaddr *)&_address, (socklen_t*)&_addrlen);
+				if (new_socket != -1)
+				{
+					FD_SET(new_socket, &_fd_set); // сохраняет сокет для следующего цикла select
+					cli_rqst.insert(new_socket); // сокет сохранен для дальнейшего чтения
+					_maxfd = std::max(new_socket, _maxfd);
+				}
+				//else
+				// делать ли обработку ошибки?
 			}
-			//else
-			// делать ли обработку ошибки?
 		}
+
 	}
 	return ;
 }

@@ -2,7 +2,11 @@ NAME = lehinserv
 CC = clang++
 FLAGS = -std=c++98
 #FLAGS=
-SRC = main1.cpp \
+SRC = main.cpp \
+parser/Config.cpp \
+server/Server.cpp \
+server/Location.cpp \
+StatusCode.cpp \
 Request.cpp \
 Response.cpp \
 ServerMachine.cpp \
