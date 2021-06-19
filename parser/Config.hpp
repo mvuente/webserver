@@ -102,7 +102,8 @@ private:
 public:
 	Config();
 	~Config();
-	int parse(std::string file);
+	int 				parse(std::string file);
+	std::list<Server*>	&getServers();
 };
 
 //print server for debug

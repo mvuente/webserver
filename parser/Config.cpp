@@ -555,3 +555,8 @@ int Config::parse(std::string file)
 	}
 	return (0);
 }
+
+std::list<Server*>	&Config::getServers()
+{
+	return this->servers;
+}
