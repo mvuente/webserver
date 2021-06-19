@@ -14,3 +14,4 @@ I need at least GET, POST, and DELETE methods.
 
 References:
 https://datatracker.ietf.org/doc/html/rfc7231
+http://rsdn.org/article/unix/sockets.xml
