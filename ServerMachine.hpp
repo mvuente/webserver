@@ -7,17 +7,30 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include <fstream>
+#include <sys/types.h>
+#include <sys/socket.h>
+//#include "CGI.hpp"
+
+#include <sstream>
 
 class ServerMachine {
 public:
+	ServerMachine();
 	ServerMachine(Request& rqst, Response& rspns); // add , Server& srvr
 	~ServerMachine();
-	std::string getResponse(); // ПОКА складывает стартовую строку и остальные хелеры. Тело делаю отдельно. Потом совмещу
-	Response&	getRspObj(); //временный метод
+	//std::string getResponse();
+	Response&			getRspObj(); //временный метод
 
-	void 		ResponseCrtr();
-	void		methodGet();
-	//void	methodPost();
+	bool				checkCGI();
+	long 				ResponseCrtr(int fd); // метод отправляет ответ сервера по заданному fd
+	void 				methodProcesser();
+	std::string			contentTypeProcesser();
+	std::string			bodyProcessorMultipart(std::string body, std::string type);
+	std::string			bodyProcessorEncoded(std::string	body);
+	void				methodGet();
+	void				methodPost();
+
+	//long 				rspns_send(int fd);
 
 	// under construction
 	//void 		respHeaderCreater();
