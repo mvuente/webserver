@@ -3,6 +3,7 @@
 	Location::Location()
 	{
 		allowAllMethods();
+		setMaxBodySize(2000);
 	}
 
 	Location::~Location()
@@ -10,7 +11,6 @@
 
 	}
 
-	
 	//Getters
 	std::string Location::getPath()
 	{
@@ -85,6 +85,8 @@
 		this->methodAllowed["GET"] = 0;
 		this->methodAllowed["POST"] = 0;
 		this->methodAllowed["DELETE"] = 0;
+		this->methodAllowed["HEAD"] = 0;
+		this->methodAllowed["PUT"] = 0;
 	}
 
 	int Location::allowMethod(std::string method)

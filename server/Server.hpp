@@ -1,3 +1,6 @@
+#ifndef SERVER_HPP
+#define SERVER_HPP
+
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -29,7 +32,7 @@ public:
 	std::list<std::string> &getServerNames();
 	void addServerName(std::string serverName);
 	void addLocation(Location *loc);
-	std::list<Location *> &getLocation();
+	const std::list<Location *> &getLocation() const;
 	int getIsDefaultServer();
 	int getClientMaxBodySize();
 	std::string getErrorPage();
@@ -42,3 +45,4 @@ public:
 	std::string getAccessLog();
 };
 
+#endif

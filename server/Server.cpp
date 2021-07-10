@@ -47,7 +47,8 @@ int Server::getPort() const
 
 Server::Server()
 {
-	
+	this->host = "localhost";
+	this->port = 80;
 }
 
 Server::~Server()
@@ -55,7 +56,7 @@ Server::~Server()
 
 }
 
-std::list<Location *> &Server::getLocation()
+const std::list<Location *> &Server::getLocation() const
 {
 	return (this->locationList);
 }

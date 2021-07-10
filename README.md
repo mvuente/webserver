@@ -15,3 +15,5 @@ I need at least GET, POST, and DELETE methods.
 References:
 https://datatracker.ietf.org/doc/html/rfc7231
 http://rsdn.org/article/unix/sockets.xml
+
+IMPORTANT: files CGI_TESTER, TESTER, folders YOUPIBANANE are for testing procedure, provided by school. To pass this test, you need compile the project, launch webserv binary and launch tester binary. Next you need to follow instructions.

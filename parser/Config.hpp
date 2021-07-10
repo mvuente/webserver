@@ -67,6 +67,9 @@ private:
 	int parseUploadStore(Location *loc, 
 	std::vector<std::string>::iterator &begin,
 	std::vector<std::string>::iterator end);
+	int parseMaxBody(Location *loc, 
+	std::vector<std::string>::iterator &begin,
+	std::vector<std::string>::iterator end);
 	
 	//parse server params functions
 	static int parseHostPort(Server *server, 
@@ -102,8 +105,8 @@ private:
 public:
 	Config();
 	~Config();
-	int 				parse(std::string file);
-	std::list<Server*>	&getServers();
+	int parse(std::string file);
+	std::list<Server*> &getServers() { return servers; };
 };
 
 //print server for debug

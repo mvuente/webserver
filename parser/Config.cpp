@@ -76,7 +76,7 @@ std::vector<std::string>::iterator end)
 		{
 			m = m.substr(0, m.size() - 1);
 		}
-		if (m.compare("GET") == 0 || m.compare("POST") == 0 || m.compare("DELETE") == 0)
+		if (m.compare("GET") == 0 || m.compare("POST") == 0 || m.compare("DELETE") == 0 || m.compare("PUT") == 0)
 		{
 			loc->allowMethod(m);
 		}
@@ -104,7 +104,7 @@ std::vector<std::string>::iterator end)
 		begin++;
 		return(0);
 	}
-	return (0);
+	return (-1);
 }
 
 int Config::parseCgiPass(Location *loc, 
@@ -148,6 +148,25 @@ std::vector<std::string>::iterator end)
 	}
 	return (0);
 }
+
+
+int Config::parseMaxBody(Location *loc, 
+std::vector<std::string>::iterator &begin,
+std::vector<std::string>::iterator end)
+{
+	if (begin == end)
+			return (1);
+		if (isNumber(*begin))
+			loc->setMaxBodySize(atoi((*begin).c_str()));
+		begin++;
+		if (begin != end && (*begin).compare(";") == 0)
+		{
+			begin++;
+			return(0);
+		}
+		return (0);
+}
+
 
 int Config::parseRedirect(Location *loc, 
 	std::vector<std::string>::iterator &begin,
@@ -259,7 +278,7 @@ int Config::parseLocation(Server *server, std::vector<std::string>::iterator &be
 std::vector<std::string>::iterator end)
 {
 
-	std::string names[8] = {
+	std::string names[9] = {
 		"root",
 		"index",
 		"limit_except",
@@ -267,14 +286,15 @@ std::vector<std::string>::iterator end)
 		"cgi_pass",
 		"cgi_extension",
 		"return",
-		"upload_store"
+		"upload_store",
+		"client_max_body_size"
 	};
 
 	typedef int (Config::*funptr)(Location *loc,
 	std::vector<std::string>::iterator &begin,
 	std::vector<std::string>::iterator end);
 	
-	funptr funs[8] =
+	funptr funs[9] =
 	{
 		&Config::parseRoot,
 		&Config::parseIndex,
@@ -283,7 +303,8 @@ std::vector<std::string>::iterator end)
 		&Config::parseCgiPass,
 		&Config::parseCgiExtension,
 		&Config::parseRedirect,
-		&Config::parseUploadStore
+		&Config::parseUploadStore,
+		&Config::parseMaxBody
 	};
 
 	Location *loc;
@@ -294,8 +315,6 @@ std::vector<std::string>::iterator end)
 	if (begin == end)
 		return (1);
 	loc = new Location();
-	if ((*begin)[0] != '/')
-		return (1);
 	loc->setPath(*begin);
 	begin++;
 	if (begin != end && (*begin).compare("{") == 0)
@@ -310,7 +329,7 @@ std::vector<std::string>::iterator end)
 				server->addLocation(loc);
 				return (0);
 			}
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < 9; i++)
 			if ((*begin).compare(names[i]) == 0)
 			{
 				flag = 1;
@@ -319,7 +338,11 @@ std::vector<std::string>::iterator end)
 				break;
 			}
 			if (!flag)
-				return (1); // FIX
+			{
+				if (loc)
+					free(loc);
+				return (1);
+			}
 		}
 	}
 	return (0);
@@ -424,6 +447,8 @@ std::vector<std::string>::iterator end)
 			if ((*begin).compare("}") == 0 && validate(server))
 			{
 				begin++;
+				if (server->getHost().compare("") == 0)
+					return (free_all(server));
 				return (server);
 			}
 			if ((*begin).compare("location") == 0)
@@ -443,7 +468,7 @@ std::vector<std::string>::iterator end)
 			return (free_all(server));
 		}
 	}
-	return (server);
+	return (free_all(server));
 }
 
 bool Config::isSpace(unsigned char c) {
@@ -453,11 +478,12 @@ bool Config::isSpace(unsigned char c) {
 
 int Config::readConfig(std::string file)
 {
-	std::ifstream config;
-	config.open (file, std::ios::in);
+	std::ifstream config(file.c_str(), std::ios::in);
+	
 	if (config.fail())
 	{
 		std::cout << "Error: can't open config file." << std::endl;
+		exit(1);
 		return (-1);
 	}
 	std::string line;
@@ -500,14 +526,15 @@ std::ostream &operator<<(std::ostream &out, Server *server)
 		out << "client body size:" << server->getClientMaxBodySize() << std::endl;
 		out << "Is default: " << server->getIsDefaultServer() << std::endl;
 		out << "server names: ";
-		for (std::list<std::string>::iterator it = server->getServerNames().begin(); 
+		for (std::list<std::string>::const_iterator it = server->getServerNames().begin(); 
 				it != server->getServerNames().end(); it++)
 					out << *it << " ";
 		out << std::endl;
-		out << "locations:";
-		for (std::list<Location *>::iterator it = server->getLocation().begin(); 
+		out << "locations: ";
+		for (std::list<Location *>::const_iterator it = server->getLocation().begin(); 
 				it != server->getLocation().end(); it++)
 					{
+						out << (*it)->getPath() << " ";
 						out << (*it)->getRoot() << " ";
 						out << (*it)->getIndex() << " ";
 						out << (*it)->getAutoindex() << " ";
@@ -519,6 +546,7 @@ std::ostream &operator<<(std::ostream &out, Server *server)
 						out << "GET:" << (*it)->getMethodAllowed()["GET"] << " ";
 						out << "POST:" << (*it)->getMethodAllowed()["POST"] << " ";
 						out << "DELETE:" << (*it)->getMethodAllowed()["DELETE"] << " ";
+						out << "max body size: " << (*it)->getMaxBodySize() << " ";
 						out << std::endl;
 
 					}
@@ -547,16 +575,11 @@ int Config::parse(std::string file)
 				servers.push_back(server);
 				if (servers.size() == 1)
 					server->setIsDefaultServer(1);
-				std::cout << server;
+				//std::cout << server;
 			}
 		}
 		else 
 			return (-1);
 	}
 	return (0);
-}
-
-std::list<Server*>	&Config::getServers()
-{
-	return this->servers;
 }
